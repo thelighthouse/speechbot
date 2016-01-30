@@ -3,13 +3,16 @@
 #speech recognition options are:
 #  SpeechRecognition https://pypi.python.org/pypi/SpeechRecognition
 #  Dragonfly (using dragon naturally speaking) https://pythonhosted.org/dragonfly
-#  Sphinx https://github.com/VikParuchuri/scribe
+#  pocketsphinx https://github.com/VikParuchuri/scribe
+#  pygsr
 #then match transcription by regular expression
 
 import pyaudio
 import wave
 import os
 import speech_recognition as sr
+#import dragonfly
+#from dragonfly.all import Grammar, CompoundRule
 import re
 import webbrowser
 
@@ -24,9 +27,9 @@ RECORD_SECONDS = 3 # Number of seconds to record, can be changed.
 WAVE_OUTPUT_FILENAME = "output.wav" # Where to save the recording from the microphone.
 
 def find_device(p, tags):
-    """
-    Find an audio device to read input from.
-    """
+   """
+   Find an audio device to read input from
+   """
     device_index = None
     for i in range(p.get_device_count()):
         devinfo = p.get_device_info_by_index(i)
@@ -39,7 +42,7 @@ def find_device(p, tags):
                 return device_index
 
     if device_index is None:
-        print("No preferred input found; using default input device.")
+        print("No preferred sound input found; using default input device.")
 
     return device_index
 
@@ -86,11 +89,13 @@ def save_audio(wav_file):
 
 def recognize(wav_file):
     r = sr.Recognizer()
+    r.energy_threshold = 4000 
+    
     with sr.WavFile(wav_file) as source:
         audio = r.record(source) # read the entire WAV file
-    # """
-    # Run speech recognition on a given file.
-    # """
+    """
+    Run speech recognition on a given file.
+    """
     # recognize speech using Google Speech Recognition
     try:
         # for testing purposes, we're just using the default API key
@@ -125,3 +130,14 @@ if __name__ == '__main__':
     if re.search("melon", result.lower()) :
         print("melon found in result")
         webbrowser.open('http://192.168.1.5:5000/color?hue=76')
+
+# # Voice command rule combining spoken form and recognition processing.
+# class ExampleRule(CompoundRule):
+    # spec = "computer"                  # Spoken form of command.
+    # def _process_recognition(self, node, extras):   # Callback when command is spoken.
+        # print "Voice command spoken."
+
+# # Create a grammar which contains and loads the command rule.
+# grammar = Grammar("example grammar")                # Create a grammar to contain the command rule.
+# grammar.add_rule(ExampleRule())                     # Add the command rule to the grammar.
+# grammar.load()                                      # Load the grammar.
